@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Turn an image into a field of color-sampled Cohere spark marks."
+    />
+    <title>Spark Mosaic Studio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Spark Mosaic</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="status" id="status" aria-live="polite">Waiting for an image</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="sidebar" aria-label="Image treatment controls">
+          <section class="intro">
+            <p class="eyebrow">Image treatment tool</p>
+            <h1>Build with sparks.</h1>
+            <p>
+              Upload an image, then tune the density, scale, and grid to create a
+              color-sampled spark mosaic.
+            </p>
+          </section>
+
+          <section class="control-section">
+            <div class="section-heading">
+              <h2>Source</h2>
+              <button class="text-button" id="replaceButton" type="button">Choose image</button>
+            </div>
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              hidden
+            />
+            <div class="file-summary" id="fileSummary">
+              <span class="file-thumb" id="fileThumb" aria-hidden="true"></span>
+              <span>
+                <strong id="fileName">No image selected</strong>
+                <small id="fileMeta">PNG, JPG, WEBP, or GIF</small>
+              </span>
+            </div>
+          </section>
+
+          <section class="control-section" id="controlsSection" aria-disabled="true">
+            <h2>Spark field</h2>
+            <label class="range-control" for="density">
+              <span>Density</span>
+              <output class="num" id="densityValue" for="density">96</output>
+              <input id="density" type="range" min="28" max="180" value="96" step="2" />
+            </label>
+            <label class="range-control" for="sparkScale">
+              <span>Spark size</span>
+              <output class="num" id="sparkScaleValue" for="sparkScale">108%</output>
+              <input id="sparkScale" type="range" min="25" max="150" value="108" step="1" />
+            </label>
+            <label class="range-control" for="sourceOpacity">
+              <span>Source opacity</span>
+              <output class="num" id="sourceOpacityValue" for="sourceOpacity">14%</output>
+              <input id="sourceOpacity" type="range" min="0" max="100" value="14" step="1" />
+            </label>
+          </section>
+
+          <section class="control-section" id="colorSection" aria-disabled="true">
+            <h2>Color treatment</h2>
+            <label class="select-control" for="colorMode">
+              <span>Mode</span>
+              <select id="colorMode">
+                <option value="electric" selected>Electric dither</option>
+                <option value="boosted">Boosted source</option>
+                <option value="sampled">Original sample</option>
+              </select>
+            </label>
+            <label class="range-control" for="contrast">
+              <span>Contrast</span>
+              <output class="num" id="contrastValue" for="contrast">72%</output>
+              <input id="contrast" type="range" min="0" max="100" value="72" step="1" />
+            </label>
+            <label class="range-control" for="dither">
+              <span>Dither</span>
+              <output class="num" id="ditherValue" for="dither">64%</output>
+              <input id="dither" type="range" min="0" max="100" value="64" step="1" />
+            </label>
+
+            <div class="background-control">
+              <div class="background-heading">
+                <span>Preview background</span>
+                <span class="section-note">Not exported</span>
+              </div>
+              <div class="color-options">
+                <button
+                  class="color-swatch is-selected"
+                  type="button"
+                  data-color="#061324"
+                  aria-label="Preview on navy"
+                  title="Navy"
+                ></button>
+                <button
+                  class="color-swatch"
+                  type="button"
+                  data-color="#17171c"
+                  aria-label="Preview on black"
+                  title="Black"
+                ></button>
+                <button
+                  class="color-swatch"
+                  type="button"
+                  data-color="#f0eee9"
+                  aria-label="Preview on cream"
+                  title="Cream"
+                ></button>
+                <button
+                  class="color-swatch"
+                  type="button"
+                  data-color="#ffffff"
+                  aria-label="Preview on white"
+                  title="White"
+                ></button>
+                <label class="custom-color" title="Custom preview color">
+                  <span aria-hidden="true">+</span>
+                  <input
+                    id="previewBackground"
+                    type="color"
+                    value="#061324"
+                    aria-label="Choose custom preview background"
+                  />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="control-section" id="gridSection" aria-disabled="true">
+            <div class="section-heading">
+              <h2>Grid</h2>
+              <span class="section-note">With gutters</span>
+            </div>
+            <label class="range-control" for="gridColumns">
+              <span>Columns</span>
+              <output class="num" id="gridColumnsValue" for="gridColumns">4</output>
+              <input id="gridColumns" type="range" min="1" max="12" value="4" step="1" />
+            </label>
+            <label class="range-control" for="gridRows">
+              <span>Rows</span>
+              <output class="num" id="gridRowsValue" for="gridRows">3</output>
+              <input id="gridRows" type="range" min="1" max="12" value="3" step="1" />
+            </label>
+            <label class="range-control" for="gutter">
+              <span>Gutter</span>
+              <output class="num" id="gutterValue" for="gutter">8px</output>
+              <input id="gutter" type="range" min="0" max="32" value="8" step="1" />
+            </label>
+          </section>
+
+          <section class="control-section layer-section" id="layersSection" aria-disabled="true">
+            <h2>Layers</h2>
+            <label class="switch-row">
+              <span>
+                <strong>Spark effect</strong>
+                <small>Color-sampled vector marks</small>
+              </span>
+              <input id="showSparks" type="checkbox" checked />
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+            <label class="switch-row">
+              <span>
+                <strong>Source image</strong>
+                <small>Original image beneath sparks</small>
+              </span>
+              <input id="showSource" type="checkbox" />
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+            <label class="switch-row">
+              <span>
+                <strong>Grid gutters</strong>
+                <small>Split image into sections</small>
+              </span>
+              <input id="showGrid" type="checkbox" checked />
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+          </section>
+
+          <section class="control-section" id="exportSection" aria-disabled="true">
+            <div class="section-heading">
+              <h2>Print export</h2>
+              <span class="section-note">Transparent</span>
+            </div>
+            <label class="select-control" for="exportFormat">
+              <span>Format</span>
+              <select id="exportFormat">
+                <option value="png" selected>PNG — 300 DPI</option>
+                <option value="svg">SVG — vector</option>
+              </select>
+            </label>
+            <label class="number-control" for="printWidth">
+              <span>Print width</span>
+              <span class="number-input">
+                <input
+                  class="num"
+                  id="printWidth"
+                  type="number"
+                  min="2"
+                  max="20"
+                  step="0.25"
+                  value="12"
+                  inputmode="decimal"
+                />
+                <span>in</span>
+              </span>
+            </label>
+            <p class="export-detail num" id="exportDetail">Upload an image to calculate size</p>
+            <button
+              class="button button-primary export-button"
+              id="exportButton"
+              type="button"
+              disabled
+            >
+              Export 300 DPI PNG
+            </button>
+            <p class="export-note">
+              Preview color is excluded. SVG keeps every spark as an editable vector path.
+            </p>
+          </section>
+
+          <button class="button button-secondary reset-button" id="resetButton" type="button" disabled>
+            Reset treatment
+          </button>
+        </aside>
+
+        <section class="stage" id="stage">
+          <div class="drop-card" id="dropCard">
+            <div class="drop-icon" aria-hidden="true">
+              <img src="sparkwhite.svg" alt="" />
+            </div>
+            <p class="eyebrow">Start a new treatment</p>
+            <h2>Drop an image here</h2>
+            <p>Your image stays in your browser and is never uploaded.</p>
+            <button class="button button-primary" id="uploadButton" type="button">
+              Choose image
+            </button>
+          </div>
+
+          <div class="canvas-wrap" id="canvasWrap" hidden>
+            <canvas id="mosaicCanvas" aria-label="Spark mosaic image preview"></canvas>
+          </div>
+
+          <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+            <span>Drop to replace image</span>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

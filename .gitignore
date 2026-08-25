@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Source / sample images (user content, not part of the app)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.tif
+*.tiff
+*.heic
+
+# Exported artwork (keep only the app's source SVG)
+*.svg
+!sparkwhite.svg
+
+# Work / output directories
+postcards/
+toshare/
+treatedimages/
+assets/
+
+# Editor / OS cruft
+*.ai
+*.psd
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Node / build (in case tooling is added later)
+node_modules/
+dist/
+build/
+.vercel/
+.env
+.env.local
+.env.*.local
