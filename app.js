@@ -11,7 +11,7 @@ const DEFAULTS = Object.freeze({
   gutter: 8,
   showSparks: true,
   showSource: false,
-  showGrid: true,
+  showGrid: false,
   exportFormat: "png",
   printWidth: 12,
 });
